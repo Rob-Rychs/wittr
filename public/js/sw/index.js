@@ -8,15 +8,15 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request).then((response) => {
       if (response.status == 404) {
-        return new Response("Whoops, not found");
+          return fetch('/imgs/dr-evil.gif');
       }
       return response;
     }).catch(() => {
       return new Response("Uh oh, that totally failed!");
     })
   );
-  // new Response('<b class="a-winner-is-me">Hello World</b>', {
+});
+// new Response('<b class="a-winner-is-me">Hello World</b>', {
   //   headers: {"Content-Type": "text/html"}
   //   })
   // );
-});
