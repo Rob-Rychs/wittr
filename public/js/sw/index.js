@@ -1,4 +1,4 @@
-var staticCacheName = 'wittr-static-v3';
+var staticCacheName = 'wittr-static-v4';
 // test
 self.addEventListener('install', (event) => {
   // TODO: cache /skeleton rather than the root page '/'
