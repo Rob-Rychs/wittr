@@ -1,5 +1,5 @@
 var staticCacheName = 'wittr-static-v2';
-// testtttttt
+// test
 self.addEventListener('install', (event) => {
   var urlsToCache = [
     '/',

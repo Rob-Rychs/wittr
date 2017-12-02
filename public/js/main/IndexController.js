@@ -26,7 +26,7 @@ IndexController.prototype._registerServiceWorker = function() {
     // TODO: if there's an updated worker already waiting, call
     // indexController._updateReady()
     if (reg.waiting) {
-      indexController._updateReady();
+      indexController._updateReady(reg.waiting);
       return;
     }
     // TODO: if there's an updated worker installing, track its
@@ -47,7 +47,8 @@ IndexController.prototype._registerServiceWorker = function() {
 
   // TODO: listen for the controlling service worker changing and reload the page
   navigator.serviceWorker.addEventListener('controllerchange', function() {
-    Window.location.reload();
+    console.log('bug');
+    window.location.reload();
   });
 };
 
@@ -56,7 +57,7 @@ IndexController.prototype._trackInstalling = function(worker) {
 
   worker.addEventListener('statechange', function() {
     if (worker.state == 'installed') {
-      indexController._updateReady();
+      indexController._updateReady(worker);
     }
   });
 };
