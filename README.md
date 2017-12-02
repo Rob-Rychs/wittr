@@ -62,3 +62,9 @@ ports:
 ### Notes
 
 /public/js/main/IndexController.js opens a websocket to the server and listens for new data...
+
+This project demonstrates the following offline-first features:
+
+- Unobstrusive app updates
+
+- Get the user onto the latest version of sw with notifications
