@@ -1,3 +1,5 @@
+var staticCacheName = 'wittr-static-v2';
+
 self.addEventListener('install', (event) => {
   var urlsToCache = [
     '/',
@@ -8,7 +10,7 @@ self.addEventListener('install', (event) => {
     'https://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOD8E0i7KZn-EPnyo3HZu7kw.woff'
   ];
   event.waitUntil(
-    caches.open('wittr-static-2').then(function(cache) {
+    caches.open(staticCacheName).then(function(cache) {
       return cache.addAll(urlsToCache);
     })
   );
@@ -16,7 +18,16 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.delete('wittr-static-v1') // as sw cache v grows it becomes hard to delete all previous versions of sw so we need a solution that scales
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function(cacheName) {
+          return cacheName.startsWith('wittr-') &&
+               cacheName != staticCacheName;
+        }).map(function(cacheName) {
+          return caches.delete(cacheName);
+        })
+      );
+    })
   );
 });
 
