@@ -1,13 +1,16 @@
 import idb from 'idb';
 
 // this might be one of the only times you don't use a break statement in a switch... ignore your linter
-var dbPromise = idb.open('test-db', 2, function(upgradeDb) {
+var dbPromise = idb.open('test-db', 3, function(upgradeDb) {
   switch(upgradeDb.oldVersion) {
     case 0: 
       var keyValStore = upgradeDb.createObjectStore('keyval');
       keyValStore.put("world", "hello");
     case 1: 
       upgradeDb.createObjectStore('people', { keyPath: 'name' });
+    case 2: 
+      var peopleStore = upgradeDb.transaction.objectStore('people');
+      peopleStore.createIndex('animal', 'favoriteAnimal');
   }
 });
 
@@ -74,8 +77,9 @@ dbPromise.then(function(db) {
 dbPromise.then(function(db) {
   var tx = db.transaction('people');
   var peopleStore = tx.objectStore('people');
-
-  return peopleStore.getAll();
+  var animalIndex = peopleStore.index('animal');
+  // can even pass quesries into indexes with getAll(), here we query 'cat'
+  return animalIndex.getAll('cat');
 }).then(function(people) {
   console.log('People:', people);
 });
