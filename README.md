@@ -65,6 +65,8 @@ ports:
 
 This project demonstrates the following offline-first features:
 
-- Unobstrusive app updates
+* Unobstrusive app updates
 
-- Get the user onto the latest version of sw with notifications
+* Get the user onto the latest version of sw with notifications
+
+* Continually update cache of posts
