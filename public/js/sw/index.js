@@ -15,30 +15,40 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => { 
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) return response;
+      return fetch(event.request);
+    })
+  );
+});
+
   // dr-evil image hijack
   // if (event.request.url.endsWith('.jpg')) {
   //   event.respondWith(
   //     fetch('/imgs/dr-evil.gif')
   //   );
   // }
-  event.respondWith(
-    fetch(event.request).then((response) => {
-      if (response.status == 404) {
-          return fetch('/imgs/dr-evil.gif');
-      }
-      return response;
-    }).catch(() => {
-      return new Response("Uh oh, that totally failed!");
-    })
-  );
-});
+
+// sw hijack for 404 and offline responses
+//   event.respondWith(
+//     fetch(event.request).then((response) => {
+//       if (response.status == 404) {
+//           return fetch('/imgs/dr-evil.gif');
+//       }
+//       return response;
+//     }).catch(() => {
+//       return new Response("Uh oh, that totally failed!");
+//     })
+//   );
+
 // custom new html response code below:
 // new Response('<b class="a-winner-is-me">Hello World</b>', {
   //   headers: {"Content-Type": "text/html"}
   //   })
   // );
   
-// cache example code below:  
+// various cache example code below:  
 // caches.open('my-stuff').then(funciton(cache) {
 //   //...
 // });
