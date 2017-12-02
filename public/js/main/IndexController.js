@@ -2,12 +2,28 @@ import PostsView from './views/Posts';
 import ToastsView from './views/Toasts';
 import idb from 'idb';
 
+function openDatabase() {
+  // If the browser doesn't support service worker we don't care about having a database
+  if (!navigator.serviceWorker) {
+    return Promise.resolve();
+  }
+
+  // TODO: return a promise for a database called 'wittr' that contains one objectStore: 'witters' that uses 'id' as it's key and has an index called 'by-date', which is sorted by the 'time' property
+  return idb.open('wittr', 1, function(upgradeDb) {
+    var store = upgradeDb.createObjectStore('wittrs', {
+      keyPath: 'id'
+    });
+    store.createIndex('by-date', 'time');
+  });
+}
+
 export default function IndexController(container) {
   this._container = container;
   this._postsView = new PostsView(this._container);
   this._toastsView = new ToastsView(this._container);
   this._lostConnectionToast = null;
   this._openSocket();
+  this._dbPromise = openDatabase();
   this._registerServiceWorker();
 }
 
@@ -122,5 +138,17 @@ IndexController.prototype._openSocket = function() {
 // called when the web socket sends message data
 IndexController.prototype._onSocketMessage = function(data) {
   var messages = JSON.parse(data);
+
+  this._dbPromise.then(function(db) {
+    if (!db) return;
+
+    // TODO: put each message into the 'witters' object store
+    var tx = db.transaction('wittrs', 'readwrite');
+    var store = tx.objectStore('wittrs');
+    messages.forEach(function(message) {
+      store.put(message);
+    });
+  });
+
   this._postsView.addPosts(messages);
 };
