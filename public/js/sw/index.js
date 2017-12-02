@@ -8,9 +8,15 @@ self.addEventListener('install', (event) => {
     'https://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOD8E0i7KZn-EPnyo3HZu7kw.woff'
   ];
   event.waitUntil(
-    caches.open('wittr-static-v1').then(function(cache) {
+    caches.open('wittr-static-2').then(function(cache) {
       return cache.addAll(urlsToCache);
     })
+  );
+});
+
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.delete('wittr-static-v1') // as sw cache v grows it becomes hard to delete all previous versions of sw so we need a solution that scales
   );
 });
 
