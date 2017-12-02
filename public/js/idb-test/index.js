@@ -1,7 +1,7 @@
 import idb from 'idb';
 
 // this might be one of the only times you don't use a break statement in a switch... ignore your linter
-var dbPromise = idb.open('test-db', 3, function(upgradeDb) {
+var dbPromise = idb.open('test-db', 4, function(upgradeDb) {
   switch(upgradeDb.oldVersion) {
     case 0: 
       var keyValStore = upgradeDb.createObjectStore('keyval');
@@ -11,6 +11,9 @@ var dbPromise = idb.open('test-db', 3, function(upgradeDb) {
     case 2: 
       var peopleStore = upgradeDb.transaction.objectStore('people');
       peopleStore.createIndex('animal', 'favoriteAnimal');
+    case 3:
+      peopleStore = upgradeDb.transaction.objectStore('people');
+      peopleStore.createIndex('age', 'age');
   }
 });
 
@@ -82,4 +85,24 @@ dbPromise.then(function(db) {
   return animalIndex.getAll('cat');
 }).then(function(people) {
   console.log('People:', people);
+});
+
+// show iterating through idb by by key with a cursor and some control flow for pormises based code
+dbPromise.then(function(db) {
+  var tx = db.transaction('people');
+  var peopleStore = tx.objectStore('people');
+  var ageIndex = peopleStore.index('age');
+ 
+  return ageIndex.openCursor();
+}).then(function(cursor) {
+  if (!cursor) return;
+  return cursor.advance(2); // skips first two items
+}).then(function logPerson(cursor) {
+  if (!cursor) return;
+  console.log('Cursored at: ', cursor.value.name);
+  // cursor.update(newValue)
+  // cursor.delete()
+  return cursor.continue().then(logPerson);
+}).then(function() {
+  console.log('Done cursoring');
 });
