@@ -1,5 +1,5 @@
 var staticCacheName = 'wittr-static-v2';
-// test
+// testtttttt
 self.addEventListener('install', (event) => {
   var urlsToCache = [
     '/',
@@ -38,6 +38,13 @@ self.addEventListener('fetch', (event) => {
       return fetch(event.request);
     })
   );
+});
+
+// liesten for the "message" event, and call skipwaiting if you get the appropriate message
+self.addEventListener('message', function(event) {
+  if (event.data.action == 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
   // dr-evil image hijack
