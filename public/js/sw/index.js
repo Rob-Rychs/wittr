@@ -1,5 +1,10 @@
 var staticCacheName = 'wittr-static-v5';
-// test
+var contentImgsCache = 'wittr-content-imgs';
+var allCaches = [
+  staticCacheName,
+  contentImgsCache
+];
+
 self.addEventListener('install', (event) => {
   // TODO: cache /skeleton rather than the root page '/'
 
@@ -24,7 +29,7 @@ self.addEventListener('activate', function(event) {
       return Promise.all(
         cacheNames.filter(function(cacheName) {
           return cacheName.startsWith('wittr-') &&
-               cacheName != staticCacheName;
+                !allCaches.includes(cacheName);
         }).map(function(cacheName) {
           return caches.delete(cacheName);
         })
@@ -42,6 +47,10 @@ self.addEventListener('fetch', (event) => {
       event.respondWith(caches.match('/skeleton'));
       return;
     }
+    if (requestUrl.pathname.startsWith('/photos/')) {
+      event.respondWith(servePhoto(event.request));
+      return;
+    }
   }
 
   event.respondWith(
@@ -51,7 +60,22 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// liesten for the "message" event, and call skipwaiting if you get the appropriate message
+function servePhoto(request) {
+  //
+  var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
+  return caches.open(contentImgsCache).then(function(cache) {
+    return cache.match(storageUrl).then(function(response) {
+      if (response) return response;
+
+      return fetch(request).then(function(networkResponse) {
+        cache.put(storageUrl, networkResponse.clone());
+        return networkResponse;
+      });
+    });
+  }); 
+}
+
+// listen for the "message" event, and call skipwaiting if you get the appropriate message
 self.addEventListener('message', function(event) {
   if (event.data.action == 'skipWaiting') {
     self.skipWaiting();
